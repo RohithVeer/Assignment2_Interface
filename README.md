@@ -52,3 +52,8 @@ The configuration interface is used by the processor to change the behavior of t
 | 4       | R/W    | 0       | 0           | s/w override      | 0 => use len from port. 1=>use len from register                                 |
 | 4       | R/W    | 1       | 0           | pause             | 0 => normal mode. 1=>Input Rdy will be deasserted after end of current data set. |
 | 8       | R/W    | 7:0     | 0           | len               | len register                                                                     |
+# Simulation Results
+![WhatsApp Image 2024-12-28 at 7 34 04 PM](https://github.com/user-attachments/assets/fdc4a7c5-e2e8-46d7-bac3-06d694c3d5d4)
+![WhatsApp Image 2024-12-28 at 7 35 37 PM](https://github.com/user-attachments/assets/7404f20b-293a-42d4-b688-e13046ee76c5)
+![WhatsApp Image 2024-12-28 at 7 37 23 PM](https://github.com/user-attachments/assets/ade9461f-6409-486c-b286-734b787dae58)
+
