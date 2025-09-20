@@ -1,57 +1,107 @@
-# IP Introduction
+# DUT_SUM IP
 
-A typical DUT has 3 set's of interfaces
+## IP Introduction
 
-1. Data Interface
-2. Control Interface
-3. Configuration Interface
+The DUT_SUM IP is a configurable accumulator module that sums a set of 8-bit input values and outputs the result. It is designed with three main interfaces:
 
-The data interface is used for Data I/O
+1. **Data Interface** – Handles input and output data.
+2. **Control Interface** – Used by other hardware blocks to control or modify the behavior of the IP.
+3. **Configuration Interface** – Used by a processor or software to configure the behavior of the IP.
 
-The control interface is used by other hardware to control or change the behavior of the IP
+The IP follows the **RDY/EN protocol** on all interfaces to synchronize data and control signals.
 
-The configuration interface is used by the processor to change the behavior of the IP.
+---
 
-# IP Functionality
+## IP Functionality
 
-* It uses the RDY EN Protocol on all interfaces
-* The DUT takes N 8 bit input values. Adds them and outputs the result.
-* The Value of N can be provided either
-	* At the Interface via the `length` port
-	* Or via the length register accessible via the configuration register.
-* The decision on which length is used (port or register) is controlled via a bit in the configuration space.  
-* Once the DUT starts accumulating the bytes it ignores changes to the length field or register until it has generated the output.
+* Accumulates `N` 8-bit input values and outputs the sum.
+* The number of values `N` can be specified:
+  * **At the interface** via the `length` port.
+  * **Via configuration register** accessible through the configuration interface.
+* A configuration bit determines whether the port or the register value is used as the source of `N`.
+* Once accumulation starts, changes to length (port or register) are ignored until the output is produced.
+* Supports **pause** functionality and software override for length programming.
+* Produces a **ready signal** indicating valid data on output.
 
-# Interfaces
+---
+
+## Interfaces
 
 | Port         | Direction | Width | Description                                         |
-| --           | --        | --    | ------                                              |
-| din_rdy      | out       | 1     | RDY for Input data                                  |
-| din_en       | in        | 1     | EN for Input data                                   |
-| din_value    | in        | 8     | Data                                                |
-| dout_rdy     | out       | 1     | RDY for Output data                                 |
-| dout_en      | in        | 1     | EN for output data                                  |
-| dout_value   | out       | 8     | Accumulated data output                             |
-| len_rdy      | out       | 1     | RDY for Length                                      |
-| len_en       | in        | 1     | EN for length                                       |
-| len_value    | in        | 8     | Number of bytes that should be accumulated          |
-| cfg_rdy      | out       | 1     | RDY for Configuration Interface                     |
-| cfg_en       | in        | 1     | EN for Configuration Interface                      |
-| cfg_address  | in        | 8     | Address of the register  in cfg space               |
-| cfg_op       | in        | 1     | Operation type, 0=Read, 1=Write                     |
-| cfg_data_in  | in        | 32    | The data that needs to be written, ignored for read |
-| cfg_data_out | out       | 32    | The data returned by read operation                 |
+| ------------ | --------- | ----- | --------------------------------------------------- |
+| din_rdy      | out       | 1     | Ready signal for input data                         |
+| din_en       | in        | 1     | Enable signal for input data                        |
+| din_value    | in        | 8     | Input data                                          |
+| dout_rdy     | out       | 1     | Ready signal for output data                        |
+| dout_en      | in        | 1     | Enable signal for output data                       |
+| dout_value   | out       | 16    | Accumulated output data                              |
+| len_rdy      | out       | 1     | Ready signal for length input                        |
+| len_en       | in        | 1     | Enable signal for length input                       |
+| len_value    | in        | 8     | Number of input bytes to accumulate                 |
+| cfg_rdy      | out       | 1     | Ready signal for configuration interface            |
+| cfg_en       | in        | 1     | Enable signal for configuration interface           |
+| cfg_address  | in        | 8     | Address of register in configuration space          |
+| cfg_op       | in        | 1     | Operation type (0=Read, 1=Write)                   |
+| cfg_data_in  | in        | 32    | Data to write (ignored for read operations)        |
+| cfg_data_out | out       | 32    | Data returned from read operation                   |
 
-# Configuration Space Register Map
+---
 
-| Address | Access | Bit map | reset value | Field             | Description                                                                      |
-| ---     | ---    | ---     | ---         | ---               | ------                                                                           |
-| 0       | R      | 7:0     | 0           | current_count     | The count of bytes processed                                                     |
-| 0       | R      | 15:8    | 0           | programmed_length | The length programmed for this session                                           |
-| 0       | R      | 16      | 0           | busy              | An operation has started and is ongoing                                          |
-| 4       | R/W    | 0       | 0           | s/w override      | 0 => use len from port. 1=>use len from register                                 |
-| 4       | R/W    | 1       | 0           | pause             | 0 => normal mode. 1=>Input Rdy will be deasserted after end of current data set. |
-| 8       | R/W    | 7:0     | 0           | len               | len register                                                                     |
+## Configuration Space Register Map
+
+| Address | Access | Bit map | Reset | Field             | Description                                                                 |
+| ------- | ------ | ------- | ----- | ----------------- | --------------------------------------------------------------------------- |
+| 0       | R      | 7:0     | 0     | current_count     | Number of bytes processed                                                   |
+| 0       | R      | 15:8    | 0     | programmed_length | Length programmed for this session                                         |
+| 0       | R      | 16      | 0     | busy              | 1 if operation is ongoing                                                  |
+| 4       | R/W    | 0       | 0     | sw_override       | 0=use length from port, 1=use length from register                          |
+| 4       | R/W    | 1       | 0     | pause             | 1=input ready will be deasserted after current dataset                     |
+| 8       | R/W    | 7:0     | 0     | len               | Length register (programmed length for accumulation)                        |
+
+---
+
+## Test Plan
+
+1. **Initialization and Data Input**
+   - Reset the IP.
+   - Provide input data and enable signals.
+   - Verify accumulation and ready flags.
+
+2. **Length Programming via Port**
+   - Program length via `len_value` port.
+   - Verify accumulation matches programmed length.
+
+3. **Length Programming via Configuration Register**
+   - Program length via `cfg_address=8`.
+   - Verify accumulation respects register value.
+
+4. **Software Override of Length**
+   - Enable software override via `cfg_address=4`.
+   - Verify accumulation uses port length over register.
+
+5. **Pausing Input**
+   - Enable pause bit via configuration register.
+   - Verify accumulation stops at the programmed length and input ready is deasserted.
+
+6. **Reading Configuration Register**
+   - Program values into configuration registers.
+   - Read back and verify correct values.
+
+7. **Busy Signal**
+   - Verify `busy` is high during accumulation and low when idle.
+
+8. **Reset Operation**
+   - Perform reset during accumulation.
+   - Verify output and internal state reset correctly.
+
+---
+
+## Notes
+
+* All outputs are synchronized to the clock.
+* Accumulated output width is 16 bits to handle overflow from multiple 8-bit inputs.
+* RDY/EN protocol ensures safe handshake between IP and other modules.
+
 # Simulation Results
 ![WhatsApp Image 2024-12-28 at 7 34 04 PM](https://github.com/user-attachments/assets/fdc4a7c5-e2e8-46d7-bac3-06d694c3d5d4)
 ![WhatsApp Image 2024-12-28 at 7 35 37 PM](https://github.com/user-attachments/assets/7404f20b-293a-42d4-b688-e13046ee76c5)
