@@ -1,0 +1,6 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1758385154" />
+    <testcase name="sum_test" classname="tests.tests_dut_sum" file="/home/rv/Desktop/Internship/Assignment2_Interface/tests/tests_dut_sum.py" lineno="9" time="0.010620594024658203" sim_time_ns="290.001" ratio_time="27305.534824765407" />
+  </testsuite>
+</testsuites>
