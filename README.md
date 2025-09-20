@@ -103,7 +103,8 @@ The IP follows the **RDY/EN protocol** on all interfaces to synchronize data and
 * RDY/EN protocol ensures safe handshake between IP and other modules.
 
 # Simulation Results
-![WhatsApp Image 2024-12-28 at 7 34 04 PM](https://github.com/user-attachments/assets/fdc4a7c5-e2e8-46d7-bac3-06d694c3d5d4)
-![WhatsApp Image 2024-12-28 at 7 35 37 PM](https://github.com/user-attachments/assets/7404f20b-293a-42d4-b688-e13046ee76c5)
-![WhatsApp Image 2024-12-28 at 7 37 23 PM](https://github.com/user-attachments/assets/ade9461f-6409-486c-b286-734b787dae58)
+<img width="1202" height="771" alt="Screenshot 2025-09-20 220904" src="https://github.com/user-attachments/assets/5e04118a-87e9-4986-8c48-30ad40e7e7d5" />
+<img width="1201" height="774" alt="Screenshot 2025-09-20 221001" src="https://github.com/user-attachments/assets/ab7693df-251a-42c1-8962-b6b0378eee8e" />
+<img width="1213" height="775" alt="Screenshot 2025-09-20 215033" src="https://github.com/user-attachments/assets/227957c2-fea2-4e24-abfd-63e6c9b27f85" />
+
 
